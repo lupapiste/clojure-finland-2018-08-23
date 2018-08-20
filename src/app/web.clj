@@ -18,7 +18,7 @@
   "Accepts a command and returns a reitit route for command."
   [command]
   [(-> command :name name)
-   {:name       (->> command :name name (str "command-") keyword)
+   {:name       (->> command :name)
     :parameters {:body (-> command :request)}
     :responses  {200 {:body (-> command :response)}}
     :post       {:summary (-> command :summary)
