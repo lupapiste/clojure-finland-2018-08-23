@@ -1,0 +1,9 @@
+---
+version: '2.4'
+services:
+  db-0:
+    image: mongo:4.0.0
+    container_name: db-0
+    ports:
+      - 27017:27017
+    mem_limit: 256m
