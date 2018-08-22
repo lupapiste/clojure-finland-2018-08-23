@@ -27,19 +27,19 @@ lein repl
 ## Speaker notes
 
 ```
-http post :3000/api/apply-fixture
+http post :3300/api/apply-fixture
 
-http post :3000/api/find-by-email email=sonja@example.com 'done?':=false
+http post :3300/api/find-by-email email=sonja@example.com 'done?':=false
 
-http post :3000/api/create email=sonja@example.com todo=Hullo
+http post :3300/api/create email=sonja@example.com todo=Hullo
 
-http post :3000/api/find-by-email email=sonja@example.com 'done?':=false
+http post :3300/api/find-by-email email=sonja@example.com 'done?':=false
 
-http post :3000/api/mark-done _id=3d9ad500-a4a0-11e8-b269-51aa698ce291
+http post :3300/api/mark-done _id=3d9ad500-a4a0-11e8-b269-51aa698ce291
 
-http post :3000/api/find-by-email email=sonja@example.com 'done?':=false
+http post :3300/api/find-by-email email=sonja@example.com 'done?':=false
 
-http post :3000/api/find-by-email email=sonja@example.com 'done?':=true
+http post :3300/api/find-by-email email=sonja@example.com 'done?':=true
 ```
 
 ## License

@@ -24,5 +24,5 @@
                                              (ig/ref :app.io.middleware/non-pure)]}
 
    :app.web/server             {:opts    {:host "localhost"
-                                          :port 3000}
+                                          :port 3300}
                                 :handler (ig/ref :app.web/handler)}})

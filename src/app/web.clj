@@ -1,8 +1,6 @@
 (ns app.web
   (:require [integrant.core :as ig]
             [immutant.web :as immutant]
-            [schema.core :as s]
-            [slingshot.slingshot :refer [try+]]
             [ring.middleware.params :as params]
             [ring.util.http-response :as resp]
             [muuntaja.middleware :as muuntaja]
@@ -32,10 +30,9 @@
 (defmethod ig/init-key ::handler [_ {:keys [commands middleware]}]
   (ring/ring-handler
     (ring/router
-      ["/"
-       ["api/" {:swagger {:id ::api}}
-        (map command->route commands)]
-       ["swagger.json" {:get {:no-doc  true
+      [""
+       ["/api/" (map command->route commands)]
+       ["/swagger.json" {:get {:no-doc  true
                               :swagger {:info {:title "API"}}
                               :handler (swagger/create-swagger-handler)}}]]
       {:data {:coercion   schema-coercion/coercion
@@ -60,3 +57,7 @@
 (defmethod ig/init-key ::server [_ {:keys [handler opts]}]
   (immutant/run handler (merge defaults opts)))
 
+(defmethod ig/halt-key! ::server [_ server]
+  (immutant/stop server))
+
+; (->> (user/system) ::handler reitit.ring/get-router reitit.core/routes (map first))
