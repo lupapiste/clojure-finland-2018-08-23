@@ -1,13 +1,15 @@
 (ns app.web
-  (:require [integrant.core :as ig]
+  (:require [clojure.tools.logging :as log]
+            [integrant.core :as ig]
             [immutant.web :as immutant]
             [ring.middleware.params :as params]
             [ring.util.http-response :as resp]
-            [muuntaja.middleware :as muuntaja]
+            [muuntaja.core :as muuntaja]
             [reitit.ring :as ring]
+            [reitit.ring.coercion :as ring-coercion]
+            [reitit.ring.middleware.muuntaja :as muuntaja-middleware]
+            [reitit.ring.middleware.exception :as exception-middleware]
             [reitit.coercion.schema :as schema-coercion]
-            [reitit.ring.coercion :as rrc]
-            [reitit.ring.middleware.exception :as exception]
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
             [app.command :as c]))
@@ -23,9 +25,20 @@
                  :handler (-> command :handler)}
     ::c/command command}])
 
-(def exception-middleware
-  (exception/create-exception-middleware
-    (merge exception/default-handlers {::resp/response (fn [e _] (-> e ex-data :response))})))
+(def exception-middleware (exception-middleware/create-exception-middleware
+                            (merge exception-middleware/default-handlers
+                                   {::exception-middleware/default (fn [e _]
+                                                                     (log/error e "unexpected error")
+                                                                     (resp/internal-server-error "Unexpected internal error"))
+                                    ::resp/response                (fn [e _] (-> e ex-data :response))})))
+
+(def default-middleware [params/wrap-params
+                         muuntaja-middleware/format-negotiate-middleware
+                         muuntaja-middleware/format-response-middleware
+                         muuntaja-middleware/format-request-middleware
+                         ring-coercion/coerce-response-middleware
+                         ring-coercion/coerce-request-middleware
+                         exception-middleware])
 
 (defmethod ig/init-key ::handler [_ {:keys [commands middleware]}]
   (ring/ring-handler
@@ -36,17 +49,8 @@
                               :swagger {:info {:title "API"}}
                               :handler (swagger/create-swagger-handler)}}]]
       {:data {:coercion   schema-coercion/coercion
-              :middleware (concat [params/wrap-params
-                                   muuntaja/wrap-format
-                                   muuntaja/wrap-exception
-                                   swagger/swagger-feature
-                                   rrc/coerce-exceptions-middleware
-                                   rrc/coerce-request-middleware
-                                   rrc/coerce-response-middleware
-                                   exception-middleware]
-                                  middleware)
-              :swagger    {:produces #{"application/json" "application/edn" "application/transit+json"}
-                           :consumes #{"application/json" "application/edn" "application/transit+json"}}}})
+              :muuntaja   muuntaja/instance
+              :middleware (concat default-middleware middleware)}})
     (some-fn (swagger-ui/create-swagger-ui-handler {:path "/swagger", :url "/swagger.json"})
              (constantly (resp/not-found "Say what?")))))
 
@@ -59,5 +63,3 @@
 
 (defmethod ig/halt-key! ::server [_ server]
   (immutant/stop server))
-
-; (->> (user/system) ::handler reitit.ring/get-router reitit.core/routes (map first))

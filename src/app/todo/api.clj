@@ -6,19 +6,7 @@
   (:import (java.util UUID)))
 
 (def commands
-  [{:name    :todo/find-by-email
-    :summary "Find ToDos by user email"
-    :request {:email s/Str
-              :done? s/Bool}
-    :input   [[:user [:find-one :users {:email ^:q [:body :email]}]]
-              [:todos [:find-all :todos {:user  ^:q [:input :user :_id]
-                                         :done? ^:q [:body :done?]}]]]
-    :handler (fn [request]
-               (when-not (-> request :input :user)
-                 (resp/not-found!))
-               (resp/ok {:todos (-> request :input :todos)}))}
-
-   {:name    :todo/create
+  [{:name    :todo/create
     :summary "Create new ToDo"
     :request {:email s/Str
               :todo  s/Str}
@@ -37,6 +25,18 @@
                                      [:update :users
                                       {:email (-> user :email)}
                                       {$inc {:todos 1}}]]))))}
+
+   {:name    :todo/find-by-email
+    :summary "Find ToDos by user email"
+    :request {:email s/Str
+              :done? s/Bool}
+    :input   [[:user [:find-one :users {:email ^:q [:body :email]}]]
+              [:todos [:find-all :todos {:user  ^:q [:input :user :_id]
+                                         :done? ^:q [:body :done?]}]]]
+    :handler (fn [request]
+               (when-not (-> request :input :user)
+                 (resp/not-found!))
+               (resp/ok {:todos (-> request :input :todos)}))}
 
    {:name    :todo/mark-done
     :summary "Mark ToDo as done"

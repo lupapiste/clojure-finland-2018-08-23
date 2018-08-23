@@ -24,6 +24,7 @@
 (def commands
   [{:name    :apply-fixture
     :pure?   false
+    :request nil
     :handler (fn [request]
                (apply-fixture (-> request :app.db/db))
                (resp/ok {:message "Fixture applied successfully"}))}])
