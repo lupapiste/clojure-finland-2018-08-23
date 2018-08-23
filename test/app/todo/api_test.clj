@@ -1,16 +1,11 @@
 (ns app.todo.api-test
   (:require [clojure.test :refer :all]
             [testit.core :refer :all]
+            [app.todo.test-util :refer [find-handler]]
             [app.todo.api :as todo])
   (:import (java.util UUID)))
 
-(defn find-handler [commands name]
-  (->> commands
-       (filter (comp (partial = name) :name))
-       (first)
-       :handler))
-
-(def find-by-email (find-handler todo/commands :find-by-email))
+(def find-by-email (find-handler todo/commands :todo/find-by-email))
 
 (deftest find-by-email-test
   (fact
@@ -22,7 +17,7 @@
     => {:status 200
         :body   {:todos ::todos}}))
 
-(def create (find-handler todo/commands :create))
+(def create (find-handler todo/commands :todo/create))
 
 (deftest create-test
   (fact

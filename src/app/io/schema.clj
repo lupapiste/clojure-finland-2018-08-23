@@ -6,13 +6,12 @@
 ;;
 
 (defschema Query
-  [(s/one (s/enum :find-one :find-all) 'query-op)
+  [(s/one (s/enum :find-one :find-all) 'op)
    (s/one s/Keyword 'collection)
    (s/one {s/Any s/Any} 'filter-document)])
 
 (defschema CommandInput
-  [[(s/one s/Keyword 'key)
-    (s/one Query 'query)]])
+  [[(s/one s/Keyword 'key) (s/one Query 'query)]])
 
 ;;
 ;; Command output:

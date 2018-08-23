@@ -1,7 +1,7 @@
 (ns app.command
   (:require [integrant.core :as ig]
             [schema.core :as s :refer [defschema]]
-            [app.io.schema :as io-schema])
+            [app.io.schema :as io.schema])
   (:import (clojure.lang Fn)))
 
 (defschema Command
@@ -11,7 +11,7 @@
    :response s/Any
    :handler  Fn
    :pure?    s/Bool
-   :input    (s/maybe io-schema/CommandInput)})
+   :input    (s/maybe io.schema/CommandInput)})
 
 (def command-defaults {:summary  ""
                        :request  s/Any
